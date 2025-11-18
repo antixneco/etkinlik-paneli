@@ -76,11 +76,10 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function(){
-
     // ===== Masaları oluştur =====
     const masaAlani = document.getElementById('masaAlani');
     const masaSayisi = 5; // Başlangıçta 5 masa
-    const kisiPerMasa = 10; 
+    const kisiPerMasa = 10; // Her masa 10 kişilik olacak
     const masalar = [];
 
     // Masaları başlat
@@ -184,7 +183,9 @@ document.addEventListener("DOMContentLoaded", function(){
         a.click();
         URL.revokeObjectURL(url);
     });
+
 });
 </script>
+
 </body>
 </html>
