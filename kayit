@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etkinlik Kayıt Sayfası</title>
+    <style>
+        /* Genel Stil */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ECEFF1;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #455A64;
+            margin-top: 30px;
+        }
+        
+        a {
+            display: block;
+            width: 50%;
+            margin: 20px auto;
+            text-align: center;
+            padding: 15px;
+            background-color: #FF8A65;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            transition: background-color 0.3s;
+        }
+        
+        a:hover {
+            background-color: #FF7043;
+        }
+
+        /* Form Stili */
+        form {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            width: 50%;
+            margin: 20px auto;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #455A64;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #B0BEC5;
+            border-radius: 10px;
+            font-size: 1.1em;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #FF8A65;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            background-color: #FF7043;
+        }
+        
+        #clearStorageBtn {
+            background-color: #D32F2F !important;
+        }
+        
+        #clearStorageBtn:hover {
+            background-color: #C62828 !important;
+        }
+
+        /* Tablo Stili */
+        table {
+            width: 80%;
+            margin: 30px auto;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            font-size: 1.1em;
+        }
+
+        th {
+            background-color: #FF8A65;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f8f8;
+        }
+
+        tr:hover {
+            background-color: #E0E0E0;
+        }
+
+        td {
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* Responsive Tasarım */
+        @media screen and (max-width: 768px) {
+            table {
+                width: 100%;
+            }
+            form, button, a {
+                width: 90% !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Etkinlik Katılım ve Kayıt Sayfası</h1>
+    
+    <a href="masa_duzeni.html">Masa Düzenini Gör/Değiştir &gt;&gt;</a>
+
+    <form id="katilimForm">
+        <h2>Etkinlik Katılım Formu</h2>
+        <label>Ad Soyad:</label>
+        <input type="text" name="adSoyad" required>
+
+        <label>Plaket alıyor mu?</label>
+        <select name="plaket" required>
+            <option value="">Seçiniz</option>
+            <option value="Evet">Evet</option>
+            <option value="Hayır">Hayır</option>
+        </select>
+
+        <label>Yanında kimler geliyor? (Sayı)</label>
+        <input type="number" name="yaninda" min="0" value="0" placeholder="Eş, Çocuk, Misafir sayısı">
+
+        <label>Konaklama istiyor mu?</label>
+        <select name="konaklama" required>
+            <option value="">Seçiniz</option>
+            <option value="Evet">Evet</option>
+            <option value="Hayır">Hayır</option>
+        </select>
+
+        <label>Konaklayacak kişi sayısı:</label>
+        <input type="number" name="konaklamaSayisi" min="0" value="0">
+
+        <button type="submit">Katılımcıyı Kaydet</button>
+    </form>
+    
+    <button id="clearStorageBtn" style="width: 50%; margin: 10px auto; display: block;">Tüm Kayıtlı Veriyi Sil</button>
+
+    <h2>Katılımcı Listesi</h2>
+    <table id="katilimTablo">
+        <thead>
+            <tr>
+                <th>Ad Soyad</th>
+                <th>Plaket</th>
+                <th>Yanında (Kişi)</th>
+                <th>Konaklama</th>
+                <th>Konaklayacak kişi sayısı</th>
+            </tr>
+        </thead>
+        <tbody>
+            </tbody>
+    </table>
+
+    <button id="indirBtn" style="width: 50%; margin: 20px auto; display: block;">Katılımcıları CSV Olarak İndir</button>
+
+    <script>
+        const KATILIMCI_KEY = 'etkinlikKatilimcilar';
+        let katilimcilar = JSON.parse(localStorage.getItem(KATILIMCI_KEY)) || [];
+
+        function saveToLocalStorage() {
+            localStorage.setItem(KATILIMCI_KEY, JSON.stringify(katilimcilar));
+        }
+
+        function createTableRow(katilimci) {
+            const tabloBody = document.querySelector('#katilimTablo tbody');
+            const yeniSatir = tabloBody.insertRow();
+            
+            yeniSatir.setAttribute('data-id', katilimci.id); 
+
+            yeniSatir.insertCell(0).innerText = katilimci.adSoyad;
+            yeniSatir.insertCell(1).innerText = katilimci.plaket;
+            yeniSatir.insertCell(2).innerText = katilimci.yaninda;
+            yeniSatir.insertCell(3).innerText = katilimci.konaklama;
+            yeniSatir.insertCell(4).innerText = katilimci.konaklamaSayisi;
+        }
+
+        function loadData() {
+            // Sadece tabloyu geri yüklüyoruz
+            document.querySelector('#katilimTablo tbody').innerHTML = '';
+            katilimcilar.forEach(createTableRow);
+        }
+        
+        loadData();
+
+
+        // --- Olay Dinleyicileri ---
+
+        // 1. Formu İşleme (Yeni Katılımcı Ekleme)
+        document.getElementById('katilimForm').addEventListener('submit', function(e) {
+            e.preventDefault(); 
+
+            const adSoyad = this.querySelector('input[name="adSoyad"]').value;
+            const plaket = this.querySelector('select[name="plaket"]').value;
+            const yaninda = parseInt(this.querySelector('input[name="yaninda"]').value) || 0; 
+            const konaklama = this.querySelector('select[name="konaklama"]').value;
+            const konaklamaSayisi = parseInt(this.querySelector('input[name="konaklamaSayisi"]').value) || 0;
+            
+            const newId = 'katilimci' + Date.now(); 
+
+            const yeniKatilimci = {
+                id: newId,
+                adSoyad: adSoyad,
+                plaket: plaket,
+                yaninda: yaninda,
+                konaklama: konaklama,
+                konaklamaSayisi: konaklamaSayisi,
+                masaId: 'masa1' // Başlangıçta Masa 1'e ata
+            };
+
+            katilimcilar.push(yeniKatilimci);
+            createTableRow(yeniKatilimci);
+
+            saveToLocalStorage();
+            this.reset();
+        });
+
+        // 2. CSV İndirme İşlemi
+        document.getElementById('indirBtn').addEventListener('click', function() {
+            const tablo = document.getElementById('katilimTablo');
+            let csv = [];
+
+            const headers = Array.from(tablo.querySelectorAll('th')).map(th => `"${th.innerText}"`);
+            csv.push(headers.join(","));
+
+            for (let i = 1; i < tablo.rows.length; i++) {
+                let satir = [];
+                for (let j = 0; j < tablo.rows[i].cells.length; j++) {
+                    let hucre = tablo.rows[i].cells[j].innerText.replace(/"/g, '""');
+                    satir.push(`"${hucre}"`);
+                }
+                csv.push(satir.join(","));
+            }
+
+            const csvString = "\uFEFF" + csv.join("\n"); 
+            const csvDosya = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(csvDosya);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'etkinlik_katilimci_listesi.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+        
+        // 3. Veri Silme İşlemi
+        document.getElementById('clearStorageBtn').addEventListener('click', function() {
+            if (confirm("UYARI: Tüm kayıtlı katılımcı verileri silinecektir. Emin misiniz?")) {
+                localStorage.removeItem(KATILIMCI_KEY);
+                katilimcilar = []; 
+                loadData(); 
+                alert("Tüm veriler başarıyla silindi. Diğer sayfada da güncellenmesi için Masa Düzeni sayfasını yenileyin.");
+            }
+        });
+    </script>
+
+</body>
+</html>
