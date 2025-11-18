@@ -76,10 +76,11 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function(){
+
     // ===== Masaları oluştur =====
     const masaAlani = document.getElementById('masaAlani');
     const masaSayisi = 5; // Başlangıçta 5 masa
-    const kisiPerMasa = 10; // 10 kişi / masa
+    const kisiPerMasa = 10; 
     const masalar = [];
 
     for (let i = 1; i <= masaSayisi; i++) {
@@ -93,7 +94,13 @@ document.addEventListener("DOMContentLoaded", function(){
         new Sortable(masalar[i-1], { group: "masalar", animation: 150 });
     }
 
-    // ===== Formdan tablo ve masaya veri ekleme =====
+    // ===== LocalStorage'dan yükleme =====
+    let kayitliKatilimcilar = JSON.parse(localStorage.getItem('katilimcilar') || '[]');
+    kayitliKatilimcilar.forEach(k => {
+        tabloyaVeMasayaEkle(k);
+    });
+
+    // ===== Formdan veri ekleme =====
     document.getElementById('katilimForm').addEventListener('submit', function(e){
         e.preventDefault();
 
@@ -103,19 +110,32 @@ document.addEventListener("DOMContentLoaded", function(){
         const konaklama = this.querySelector('select[name="konaklama"]').value;
         const konaklamaSayisi = this.querySelector('input[name="konaklamaSayisi"]').value;
 
-        // --- Tabloya ekle ---
+        const katilimci = {adSoyad, plaket, yaninda, konaklama, konaklamaSayisi};
+        
+        // Tabloya ve masaya ekle
+        tabloyaVeMasayaEkle(katilimci);
+
+        // LocalStorage'a kaydet
+        kayitliKatilimcilar.push(katilimci);
+        localStorage.setItem('katilimcilar', JSON.stringify(kayitliKatilimcilar));
+
+        this.reset();
+    });
+
+    function tabloyaVeMasayaEkle(k){
+        // Tablo
         const tablo = document.getElementById('katilimTablo');
         const yeniSatir = tablo.insertRow();
-        yeniSatir.insertCell(0).innerText = adSoyad;
-        yeniSatir.insertCell(1).innerText = plaket;
-        yeniSatir.insertCell(2).innerText = yaninda;
-        yeniSatir.insertCell(3).innerText = konaklama;
-        yeniSatir.insertCell(4).innerText = konaklamaSayisi;
+        yeniSatir.insertCell(0).innerText = k.adSoyad;
+        yeniSatir.insertCell(1).innerText = k.plaket;
+        yeniSatir.insertCell(2).innerText = k.yaninda;
+        yeniSatir.insertCell(3).innerText = k.konaklama;
+        yeniSatir.insertCell(4).innerText = k.konaklamaSayisi;
 
-        // --- Masalara ekle ---
+        // Masalara ekle
         const li = document.createElement('li');
-        li.innerText = adSoyad;
-        if(plaket === "Evet") li.classList.add('plaket');
+        li.innerText = k.adSoyad;
+        if(k.plaket === "Evet") li.classList.add('plaket');
 
         let eklendi = false;
         for (let masa of masalar){
@@ -129,9 +149,7 @@ document.addEventListener("DOMContentLoaded", function(){
         if(!eklendi){
             alert("Tüm masalar dolu! Yeni masa eklemeniz gerekiyor.");
         }
-
-        this.reset();
-    });
+    }
 
     // ===== CSV indirme =====
     document.getElementById('indirBtn').addEventListener('click', function(){
@@ -157,6 +175,7 @@ document.addEventListener("DOMContentLoaded", function(){
         a.click();
         URL.revokeObjectURL(url);
     });
+
 });
 </script>
 
