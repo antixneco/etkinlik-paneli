@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Etkinlik Katılım Paneli</title>
     <style>
+        /* --- Yeni Renkler ve Stil --- */
+        
         /* Genel Sayfa Stili */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7fc;
+            background-color: #ECEFF1; /* Çok açık gri arka plan */
             color: #333;
             margin: 0;
             padding: 0;
@@ -17,7 +19,7 @@
 
         h1, h2 {
             text-align: center;
-            color: #444;
+            color: #455A64; /* Koyu Mavi/Gri Başlıklar */
             margin-top: 30px;
         }
 
@@ -38,17 +40,17 @@
         }
 
         th {
-            background-color: #5C6BC0;
+            background-color: #FF8A65; /* Yeni Ana Renk: Turuncu */
             color: white;
             font-weight: bold;
         }
 
         tr:nth-child(even) {
-            background-color: #f1f1f1;
+            background-color: #f8f8f8;
         }
 
         tr:hover {
-            background-color: #d3d3d3;
+            background-color: #E0E0E0;
         }
 
         td {
@@ -61,13 +63,13 @@
             justify-content: center;
             gap: 20px;
             margin-top: 40px;
-            flex-wrap: wrap; /* Küçük ekranlar için kaydırmayı engelleme */
+            flex-wrap: wrap; 
         }
 
         .masa {
             width: 200px;
             height: 300px;
-            background-color: #5C6BC0;
+            background-color: #64B5F6; /* Yeni Masa Rengi: Açık Mavi */
             color: white;
             text-align: center;
             padding-top: 10px;
@@ -83,25 +85,28 @@
         .masa h3 {
             margin: 10px 0;
             font-size: 1.3em;
-            color: #fff;
+            color: #455A64; /* Koyu başlık metni */
+            border-bottom: 2px solid #455A64;
+            padding-bottom: 5px;
+            width: 80%;
         }
 
         .katilimci {
             width: 90%;
             margin: 5px 0;
-            padding: 5px;
-            background-color: #fff;
-            color: #333;
-            border-radius: 5px;
-            cursor: move; /* Sürüklenilebilir olduğunu belirtir */
-            transition: background-color 0.3s, transform 0.1s;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 8px;
+            background-color: #FFFFFF; /* Beyaz kart */
+            color: #455A64; /* Koyu metin */
+            border-radius: 8px;
+            cursor: move; 
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* Hafif gölge */
             text-align: center;
+            font-weight: 600;
         }
         
-        /* Sürükleme sırasında görünüm */
         .katilimci:hover {
-             background-color: #eee;
+             background-color: #E3F2FD; /* Çok açık mavi hover */
         }
         .katilimci:active {
             transform: scale(0.98);
@@ -122,13 +127,14 @@
             margin-bottom: 8px;
             font-weight: bold;
             font-size: 1.1em;
+            color: #455A64;
         }
 
         input, select, button {
             width: 100%;
             padding: 12px;
             margin: 10px 0;
-            border: 2px solid #ccc;
+            border: 1px solid #B0BEC5; /* Hafif gri border */
             border-radius: 10px;
             font-size: 1.1em;
             transition: 0.3s ease-in-out;
@@ -136,7 +142,7 @@
         }
 
         button {
-            background-color: #5C6BC0;
+            background-color: #FF8A65; /* Turuncu Ana Buton */
             color: white;
             font-size: 1.2em;
             cursor: pointer;
@@ -145,8 +151,16 @@
         }
 
         button:hover {
-            background-color: #3949AB;
+            background-color: #FF7043; /* Koyu Turuncu hover */
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        #clearStorageBtn {
+            background-color: #D32F2F !important; /* Kırmızı Silme Butonu */
+        }
+        
+        #clearStorageBtn:hover {
+            background-color: #C62828 !important;
         }
 
         /* Responsive Tasarım */
@@ -198,7 +212,7 @@
         <button type="submit">Gönder</button>
     </form>
     
-    <button id="clearStorageBtn" style="width: 50%; margin: 10px auto; display: block; background-color: #D32F2F;">Tüm Kayıtlı Veriyi Sil</button>
+    <button id="clearStorageBtn" style="width: 50%; margin: 10px auto; display: block;">Tüm Kayıtlı Veriyi Sil</button>
 
     <h2>Katılımcı Listesi</h2>
     <table id="katilimTablo">
@@ -312,12 +326,11 @@
 
             const adSoyad = this.querySelector('input[name="adSoyad"]').value;
             const plaket = this.querySelector('select[name="plaket"]').value;
-            // Yanında ve Konaklama Sayısı alanlarının boş gelmesini engellemek için parseInt kullanıldı
             const yaninda = parseInt(this.querySelector('input[name="yaninda"]').value) || 0; 
             const konaklama = this.querySelector('select[name="konaklama"]').value;
             const konaklamaSayisi = parseInt(this.querySelector('input[name="konaklamaSayisi"]').value) || 0;
             
-            const newId = 'katilimci' + Date.now(); // Benzersiz ID oluştur
+            const newId = 'katilimci' + Date.now(); 
 
             const yeniKatilimci = {
                 id: newId,
@@ -326,7 +339,7 @@
                 yaninda: yaninda,
                 konaklama: konaklama,
                 konaklamaSayisi: konaklamaSayisi,
-                masaId: 'masa1' // Başlangıçta Masa 1'e ata
+                masaId: 'masa1' 
             };
 
             // Veri listesine ekle
@@ -362,7 +375,7 @@
                 csv.push(satir.join(","));
             }
 
-            const csvString = "\uFEFF" + csv.join("\n"); // \uFEFF BOM karakteri Türkçe karakterler için önemli
+            const csvString = "\uFEFF" + csv.join("\n"); 
             const csvDosya = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(csvDosya);
 
@@ -377,33 +390,27 @@
         document.getElementById('clearStorageBtn').addEventListener('click', function() {
             if (confirm("UYARI: Tüm kayıtlı katılımcı verileri silinecektir. Emin misiniz?")) {
                 localStorage.removeItem(KATILIMCI_KEY);
-                katilimcilar = []; // Bellekteki listeyi de sıfırla
-                loadData(); // Arayüzü sıfırla
+                katilimcilar = []; 
+                loadData(); 
                 alert("Tüm veriler başarıyla silindi.");
             }
         });
 
         // --- Sürükle-Bırak Fonksiyonları ---
         
-        // Bırakmayı İzin Ver
         function allowDrop(ev) {
             ev.preventDefault();
         }
 
-        // Sürüklemeyi Başlat
         function drag(ev) {
-            // Sürüklenen öğenin ID'sini (katilimcinin ID'si) veri transfer nesnesine ayarla
             ev.dataTransfer.setData("text", ev.target.id); 
         }
 
-        // Bırakma İşlemi
         function drop(ev) {
             ev.preventDefault();
-            const data = ev.dataTransfer.getData("text"); // Sürüklenen öğenin ID'sini al
+            const data = ev.dataTransfer.getData("text"); 
             const draggedElement = document.getElementById(data);
             
-            // Bırakılan yerin en yakın ebeveyninin .masa class'ına sahip olmasını sağlar
-            // Bu, katılımcıyı tam olarak Masa div'ine bırakmayı kolaylaştırır.
             const targetMasa = ev.target.closest('.masa'); 
             
             if (targetMasa) {
@@ -412,14 +419,12 @@
                 // localStorage'ı güncelle
                 const katilimciIndex = katilimcilar.findIndex(k => k.id === data);
                 if (katilimciIndex > -1) {
-                    // Katılımcının yeni masaId'sini kaydet
                     katilimcilar[katilimciIndex].masaId = targetMasa.id; 
-                    saveToLocalStorage(); // Kaydı güncelle
+                    saveToLocalStorage(); 
                 }
             }
         }
         
-        // Sürükle-Bırak fonksiyonlarını global kapsamda kullanılabilir hale getir
         window.allowDrop = allowDrop;
         window.drag = drag;
         window.drop = drop;
