@@ -93,12 +93,10 @@ document.addEventListener("DOMContentLoaded", function(){
         masalar.push(masaDiv.querySelector('.katilimci-list'));
     }
 
-    // Sortable.js'i masalara uygulayalım
-    masalar.forEach(masa => {
-        new Sortable(masa, { 
-            group: "masalar", 
-            animation: 150 
-        });
+    // Sortable.js'i masalar arasında sürükleyip bırakma için başlatalım
+    new Sortable(masaAlani, {
+        group: "masalar",
+        animation: 150
     });
 
     // ===== LocalStorage'dan yükleme =====
