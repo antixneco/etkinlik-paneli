@@ -48,8 +48,9 @@
     <button id="indirBtn">Katılımcıları CSV Olarak İndir</button>
 
 <script>
+// ===== Formdan tabloya veri ekleme =====
 document.getElementById('katilimForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+    e.preventDefault(); // Sayfa yenilenmesin
 
     const adSoyad = this.querySelector('input[name="adSoyad"]').value;
     const plaket = this.querySelector('select[name="plaket"]').value;
@@ -67,25 +68,26 @@ document.getElementById('katilimForm').addEventListener('submit', function(e) {
 
     this.reset();
 });
+
+// ===== CSV indirme =====
 document.getElementById('indirBtn').addEventListener('click', function() {
     const tablo = document.getElementById('katilimTablo');
     let csv = [];
-    
-    // Tablodaki satırları oku
+
     for (let i = 0; i < tablo.rows.length; i++) {
         let satir = [];
         for (let j = 0; j < tablo.rows[i].cells.length; j++) {
-            satir.push(tablo.rows[i].cells[j].innerText);
+            let hucre = tablo.rows[i].cells[j].innerText.replace(/"/g, '""'); // Çift tırnakları kaçır
+            satir.push(`"${hucre}"`); // Hücreyi çift tırnak içine al
         }
-        csv.push(satir.join(",")); // Hücreleri virgülle ayır
+        csv.push(satir.join(",")); 
     }
 
-// CSV dosyasını oluştur
-const bom = "\uFEFF"; // BOM ekliyoruz
-const csvDosya = new Blob([bom + csv.join("\n")], { type: 'text/csv;charset=utf-8;' });
+    // UTF-8 BOM ekle
+    const csvString = "\uFEFF" + csv.join("\n");
+    const csvDosya = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(csvDosya);
 
-
-    // Geçici link ile indir
     const a = document.createElement('a');
     a.href = url;
     a.download = 'katilim.csv';
@@ -93,7 +95,6 @@ const csvDosya = new Blob([bom + csv.join("\n")], { type: 'text/csv;charset=utf-
     URL.revokeObjectURL(url);
 });
 </script>
-
 
 
 </body>
