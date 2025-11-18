@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Etkinlik Katılım Paneli</title>
     <style>
-        /* Genel sayfa stili */
+        /* Genel Sayfa Stili */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f06, #f79);
+            background-color: #f4f7fc;
             color: #333;
             margin: 0;
             padding: 0;
@@ -17,23 +17,47 @@
 
         h1, h2 {
             text-align: center;
-            color: #fff;
+            color: #444;
             margin-top: 30px;
         }
 
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+        /* Katılımcı Listesi Tablosu */
+        table {
+            width: 80%;
+            margin: 30px auto;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
-        h2 {
-            font-size: 2em;
-            margin-top: 20px;
+        th, td {
+            padding: 15px;
+            text-align: left;
+            font-size: 1.1em;
         }
 
-        /* Form alanı ve genel stil */
+        th {
+            background-color: #5C6BC0;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f1f1f1;
+        }
+
+        tr:hover {
+            background-color: #d3d3d3;
+        }
+
+        td {
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* Form ve Masa Alanı Stil */
         form {
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: #fff;
             border-radius: 10px;
             padding: 20px;
             width: 50%;
@@ -52,22 +76,14 @@
             width: 100%;
             padding: 12px;
             margin: 10px 0;
-            border: 2px solid #ddd;
+            border: 2px solid #ccc;
             border-radius: 10px;
             font-size: 1.1em;
             transition: 0.3s ease-in-out;
         }
 
-        input[type="text"], input[type="number"] {
-            font-size: 1em;
-        }
-
-        select {
-            font-size: 1em;
-        }
-
         button {
-            background-color: #f79;
+            background-color: #5C6BC0;
             color: white;
             font-size: 1.2em;
             cursor: pointer;
@@ -76,66 +92,13 @@
         }
 
         button:hover {
-            background-color: #f06;
+            background-color: #3949AB;
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
         }
 
-        /* Katılımcı listesi ve masalar */
-        .masa-alani {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin: 30px auto;
-            max-width: 1200px;
-        }
-
-        .masa {
-            background-color: #fff;
-            padding: 20px;
-            width: 25%;
-            min-height: 250px;
-            border-radius: 15px;
-            border: 2px solid #ddd;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: 0.3s ease;
-        }
-
-        .masa h3 {
-            text-align: center;
-            font-size: 1.5em;
-            color: #333;
-        }
-
-        .katilimci-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .katilimci-list li {
-            background-color: #f1f1f1;
-            margin: 10px 0;
-            padding: 8px;
-            border-radius: 8px;
-            cursor: grab;
-            transition: 0.2s ease;
-        }
-
-        .katilimci-list li:hover {
-            background-color: #f06;
-            color: white;
-        }
-
-        /* Responsive düzenlemeler */
+        /* Responsive Tasarım */
         @media screen and (max-width: 768px) {
-            .masa {
-                width: 45%;
-            }
-        }
-
-        @media screen and (max-width: 480px) {
-            .masa {
+            table {
                 width: 100%;
             }
 
@@ -178,7 +141,7 @@
         <button type="submit">Gönder</button>
     </form>
 
-    <!-- Katılımcı Listesi -->
+    <!-- Katılımcı Listesi Tablosu -->
     <h2>Katılımcı Listesi</h2>
     <table id="katilimTablo">
         <tr>
@@ -188,102 +151,59 @@
             <th>Konaklama</th>
             <th>Konaklayacak kişi sayısı</th>
         </tr>
+        <!-- Katılımcı verileri buraya eklenecek -->
     </table>
 
     <button id="indirBtn">Katılımcıları CSV Olarak İndir</button>
 
-    <!-- Masalar -->
-    <h2>Masalar</h2>
-    <div class="masa-alani" id="masaAlani"></div>
-
-    <!-- Sortable.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-
     <script>
-        // Sayfa yüklendiğinde çalışacak fonksiyonlar
-        document.addEventListener('DOMContentLoaded', function () {
-            // Masaları oluşturma
-            const masaAlani = document.getElementById('masaAlani');
-            const masaSayisi = 5; // Başlangıçta 5 masa
-            const kisiPerMasa = 10; // Her masa 10 kişilik
+        // Formu işleme
+        document.getElementById('katilimForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Sayfanın yenilenmesini engelle
 
-            const masalar = [];
+            const adSoyad = this.querySelector('input[name="adSoyad"]').value;
+            const plaket = this.querySelector('select[name="plaket"]').value;
+            const yaninda = this.querySelector('input[name="yaninda"]').value;
+            const konaklama = this.querySelector('select[name="konaklama"]').value;
+            const konaklamaSayisi = this.querySelector('input[name="konaklamaSayisi"]').value;
 
-            // Masaları başlat
-            for (let i = 1; i <= masaSayisi; i++) {
-                const masaDiv = document.createElement('div');
-                masaDiv.classList.add('masa');
-                masaDiv.id = `masa${i}`;
-                masaDiv.innerHTML = `<h3>Masa ${i}</h3><ul class="katilimci-list" id="masa${i}list"></ul>`;
-                masaAlani.appendChild(masaDiv);
-                masalar.push(masaDiv.querySelector('.katilimci-list'));
+            // Yeni satır ekleme
+            const tablo = document.getElementById('katilimTablo');
+            const yeniSatir = tablo.insertRow();
+            yeniSatir.insertCell(0).innerText = adSoyad;
+            yeniSatir.insertCell(1).innerText = plaket;
+            yeniSatir.insertCell(2).innerText = yaninda;
+            yeniSatir.insertCell(3).innerText = konaklama;
+            yeniSatir.insertCell(4).innerText = konaklamaSayisi;
 
-                // Her masa için ayrı Sortable.js başlat
-                new Sortable(masaDiv.querySelector('.katilimci-list'), {
-                    group: "masalar", // Masalar arasında taşınabilir
-                    animation: 150,   // Taşıma animasyonu
-                });
-            }
+            // Formu sıfırlama
+            this.reset();
+        });
 
-            // Formu gönderme işlemi
-            document.getElementById('katilimForm').addEventListener('submit', function (e) {
-                e.preventDefault();
+        // CSV İndirme
+        document.getElementById('indirBtn').addEventListener('click', function() {
+            const tablo = document.getElementById('katilimTablo');
+            let csv = [];
 
-                const adSoyad = this.querySelector('input[name="adSoyad"]').value;
-                const plaket = this.querySelector('select[name="plaket"]').value;
-                const yaninda = this.querySelector('input[name="yaninda"]').value;
-                const konaklama = this.querySelector('select[name="konaklama"]').value;
-                const konaklamaSayisi = this.querySelector('input[name="konaklamaSayisi"]').value;
-
-                const katilimci = { adSoyad, plaket, yaninda, konaklama, konaklamaSayisi };
-
-                // Tabloya ve masaya ekleme işlemi
-                tabloyaVeMasayaEkle(katilimci);
-                this.reset();
-            });
-
-            function tabloyaVeMasayaEkle(k) {
-                // Tabloya yeni katılımcıyı ekleme
-                const tablo = document.getElementById('katilimTablo');
-                const yeniSatir = tablo.insertRow();
-                yeniSatir.insertCell(0).innerText = k.adSoyad;
-                yeniSatir.insertCell(1).innerText = k.plaket;
-                yeniSatir.insertCell(2).innerText = k.yaninda;
-                yeniSatir.insertCell(3).innerText = k.konaklama;
-                yeniSatir.insertCell(4).innerText = k.konaklamaSayisi;
-
-                // Masaya ekleme
-                const masaIndex = Math.floor(Math.random() * masaSayisi); // Masaya rastgele kişi ekle
-                const kisiLi = document.createElement('li');
-                kisiLi.innerText = k.adSoyad;
-                masalar[masaIndex].appendChild(kisiLi);
-            }
-
-            // CSV indirme fonksiyonu
-            document.getElementById('indirBtn').addEventListener('click', function () {
-                const tablo = document.getElementById('katilimTablo');
-                let csv = [];
-
-                for (let i = 0; i < tablo.rows.length; i++) {
-                    let satir = [];
-                    for (let j = 0; j < tablo.rows[i].cells.length; j++) {
-                        let hucre = tablo.rows[i].cells[j].innerText.replace(/"/g, '""'); // Çift tırnakları kaçır
-                        satir.push(`"${hucre}"`); // Hücreyi çift tırnak içine al
-                    }
-                    csv.push(satir.join(","));
+            for (let i = 0; i < tablo.rows.length; i++) {
+                let satir = [];
+                for (let j = 0; j < tablo.rows[i].cells.length; j++) {
+                    let hucre = tablo.rows[i].cells[j].innerText.replace(/"/g, '""'); // Çift tırnakları kaçır
+                    satir.push(`"${hucre}"`); // Hücreyi çift tırnak içine al
                 }
+                csv.push(satir.join(","));
+            }
 
-                // UTF-8 BOM ekle
-                const csvString = "\uFEFF" + csv.join("\n");
-                const csvDosya = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(csvDosya);
+            // UTF-8 BOM ekle
+            const csvString = "\uFEFF" + csv.join("\n");
+            const csvDosya = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(csvDosya);
 
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'katilim.csv';
-                a.click();
-                URL.revokeObjectURL(url);
-            });
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'katilim.csv';
+            a.click();
+            URL.revokeObjectURL(url);
         });
     </script>
 
