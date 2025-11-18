@@ -240,13 +240,17 @@
             const katilimciDiv = document.createElement('div');
             katilimciDiv.classList.add('katilimci');
             katilimciDiv.setAttribute('draggable', 'true');
+            katilimciDiv.setAttribute('id', 'katilimci' + Date.now());
             katilimciDiv.innerText = adSoyad;
 
-            // Kişiyi ilgili masaya ekleyelim
+            // İlk başta masa 1'e ekliyoruz
             masa1.appendChild(katilimciDiv);
+
+            // Formu sıfırlama
+            this.reset();
         });
 
-        // CSV İndirme
+        // CSV İndirme İşlemi
         document.getElementById('indirBtn').addEventListener('click', function() {
             const tablo = document.getElementById('katilimTablo');
             let csv = [];
@@ -271,7 +275,7 @@
             URL.revokeObjectURL(url);
         });
 
-        // Sürükle-Bırak İşlemleri
+        // Sürükle-Bırak Fonksiyonları
         function allowDrop(ev) {
             ev.preventDefault();
         }
@@ -288,5 +292,6 @@
             targetMasa.appendChild(draggedElement);
         }
     </script>
+
 </body>
 </html>
