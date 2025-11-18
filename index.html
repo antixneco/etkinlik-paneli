@@ -7,5 +7,35 @@
 <body>
     <h1>Etkinlik Katılım Paneli</h1>
     <p>Buraya az sonra form ve katılımcı listesi gelecek.</p>
+    <h2>Etkinlik Katılım Formu</h2>
+<form id="katilimForm">
+    <label>Ad Soyad:</label><br>
+    <input type="text" name="adSoyad" required><br><br>
+
+    <label>Plaket alıyor mu?</label><br>
+    <select name="plaket" required>
+        <option value="">Seçiniz</option>
+        <option value="Evet">Evet</option>
+        <option value="Hayır">Hayır</option>
+    </select><br><br>
+
+    <label>Yanında kimler geliyor?</label><br>
+    <input type="text" name="yaninda" placeholder="Eş, Çocuk, Misafir sayısı"><br><br>
+
+    <label>Konaklama istiyor mu?</label><br>
+    <select name="konaklama" required>
+        <option value="">Seçiniz</option>
+        <option value="Evet">Evet</option>
+        <option value="Hayır">Hayır</option>
+    </select><br><br>
+
+    <label>Konaklayacak kişi sayısı:</label><br>
+    <input type="number" name="konaklamaSayisi" min="0"><br><br>
+
+    <button type="submit">Gönder</button>
+</form>
+
+<p id="mesaj"></p>
+
 </body>
 </html>
