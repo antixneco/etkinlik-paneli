@@ -83,6 +83,7 @@ document.addEventListener("DOMContentLoaded", function(){
     const kisiPerMasa = 10; 
     const masalar = [];
 
+    // Masaları başlat
     for (let i = 1; i <= masaSayisi; i++) {
         const masaDiv = document.createElement('div');
         masaDiv.classList.add('masa');
@@ -90,9 +91,15 @@ document.addEventListener("DOMContentLoaded", function(){
         masaDiv.innerHTML = `<h3>Masa ${i}</h3><ul class="katilimci-list"></ul>`;
         masaAlani.appendChild(masaDiv);
         masalar.push(masaDiv.querySelector('.katilimci-list'));
-
-        new Sortable(masalar[i-1], { group: "masalar", animation: 150 });
     }
+
+    // Sortable.js'i masalara uygulayalım
+    masalar.forEach(masa => {
+        new Sortable(masa, { 
+            group: "masalar", 
+            animation: 150 
+        });
+    });
 
     // ===== LocalStorage'dan yükleme =====
     let kayitliKatilimcilar = JSON.parse(localStorage.getItem('katilimcilar') || '[]');
