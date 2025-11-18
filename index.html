@@ -47,16 +47,14 @@
 </table>
 <script>
 document.getElementById('katilimForm').addEventListener('submit', function(e) {
-    e.preventDefault(); // Sayfa yenilenmesin
+    e.preventDefault();
 
-    // Form verilerini al
-    const adSoyad = this.adSoyad.value;
-    const plaket = this.plaket.value;
-    const yaninda = this.yaninda.value;
-    const konaklama = this.konaklama.value;
-    const konaklamaSayisi = this.konaklamaSayisi.value;
+    const adSoyad = this.querySelector('input[name="adSoyad"]').value;
+    const plaket = this.querySelector('select[name="plaket"]').value;
+    const yaninda = this.querySelector('input[name="yaninda"]').value;
+    const konaklama = this.querySelector('select[name="konaklama"]').value;
+    const konaklamaSayisi = this.querySelector('input[name="konaklamaSayisi"]').value;
 
-    // Tabloya yeni satır ekle
     const tablo = document.getElementById('katilimTablo');
     const yeniSatir = tablo.insertRow();
     yeniSatir.insertCell(0).innerText = adSoyad;
@@ -65,10 +63,10 @@ document.getElementById('katilimForm').addEventListener('submit', function(e) {
     yeniSatir.insertCell(3).innerText = konaklama;
     yeniSatir.insertCell(4).innerText = konaklamaSayisi;
 
-    // Formu temizle
     this.reset();
 });
 </script>
+
 
 </body>
     
