@@ -45,6 +45,8 @@
         <th>Konaklayacak kişi sayısı</th>
     </tr>
 </table>
+    <button id="indirBtn">Katılımcıları CSV Olarak İndir</button>
+
 <script>
 document.getElementById('katilimForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -65,7 +67,32 @@ document.getElementById('katilimForm').addEventListener('submit', function(e) {
 
     this.reset();
 });
+document.getElementById('indirBtn').addEventListener('click', function() {
+    const tablo = document.getElementById('katilimTablo');
+    let csv = [];
+    
+    // Tablodaki satırları oku
+    for (let i = 0; i < tablo.rows.length; i++) {
+        let satir = [];
+        for (let j = 0; j < tablo.rows[i].cells.length; j++) {
+            satir.push(tablo.rows[i].cells[j].innerText);
+        }
+        csv.push(satir.join(",")); // Hücreleri virgülle ayır
+    }
+
+    // CSV dosyasını oluştur
+    const csvDosya = new Blob([csv.join("\n")], { type: 'text/csv' });
+    const url = URL.createObjectURL(csvDosya);
+
+    // Geçici link ile indir
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'katilim.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+});
 </script>
+
 
 
 </body>
