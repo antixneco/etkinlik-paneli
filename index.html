@@ -45,7 +45,30 @@
         <th>Konaklayacak kişi sayısı</th>
     </tr>
 </table>
+<script>
+document.getElementById('katilimForm').addEventListener('submit', function(e) {
+    e.preventDefault(); // Sayfa yenilenmesin
 
+    // Form verilerini al
+    const adSoyad = this.adSoyad.value;
+    const plaket = this.plaket.value;
+    const yaninda = this.yaninda.value;
+    const konaklama = this.konaklama.value;
+    const konaklamaSayisi = this.konaklamaSayisi.value;
+
+    // Tabloya yeni satır ekle
+    const tablo = document.getElementById('katilimTablo');
+    const yeniSatir = tablo.insertRow();
+    yeniSatir.insertCell(0).innerText = adSoyad;
+    yeniSatir.insertCell(1).innerText = plaket;
+    yeniSatir.insertCell(2).innerText = yaninda;
+    yeniSatir.insertCell(3).innerText = konaklama;
+    yeniSatir.insertCell(4).innerText = konaklamaSayisi;
+
+    // Formu temizle
+    this.reset();
+});
+</script>
 
 </body>
     
