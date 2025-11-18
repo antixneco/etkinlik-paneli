@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masa Düzeni</title>
+    <style>
+        /* Genel Stil */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ECEFF1;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #455A64;
+            margin-top: 30px;
+        }
+
+        a {
+            display: block;
+            width: 50%;
+            margin: 20px auto;
+            text-align: center;
+            padding: 15px;
+            background-color: #455A64; /* Koyu Gri Geri Butonu */
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            transition: background-color 0.3s;
+        }
+        
+        a:hover {
+            background-color: #37474F;
+        }
+
+        /* Masa ve Sürükle-Bırak Alanı */
+        .masalar-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+            flex-wrap: wrap; 
+        }
+
+        .masa {
+            width: 200px;
+            height: 350px; /* Biraz yükseltildi */
+            background-color: #64B5F6; /* Açık Mavi Masa */
+            color: white;
+            text-align: center;
+            padding-top: 10px;
+            border-radius: 10px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .masa h3 {
+            margin: 10px 0;
+            font-size: 1.3em;
+            color: #455A64; 
+            border-bottom: 2px solid #455A64;
+            padding-bottom: 5px;
+            width: 80%;
+        }
+
+        .katilimci {
+            width: 90%;
+            margin: 5px 0;
+            padding: 8px;
+            background-color: #FFFFFF; /* Beyaz kart */
+            color: #455A64; 
+            border-radius: 8px;
+            cursor: move; 
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); 
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .katilimci:hover {
+             background-color: #E3F2FD; 
+        }
+        .katilimci:active {
+            transform: scale(0.98);
+        }
+
+        /* Responsive Tasarım */
+        @media screen and (max-width: 768px) {
+            .masalar-container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Etkinlik Masa Düzeni</h1>
+    <a href="kayit.html">&lt;&lt; Kayıt ve Liste Sayfasına Geri Dön</a>
+
+    <h2>Katılımcıları Sürükle ve Bırak</h2>
+    <div class="masalar-container">
+        <div class="masa" id="masa1" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h3>Masa 1</h3>
+        </div>
+        <div class="masa" id="masa2" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h3>Masa 2</h3>
+        </div>
+        <div class="masa" id="masa3" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h3>Masa 3</h3>
+        </div>
+    </div>
+
+    <script>
+        const KATILIMCI_KEY = 'etkinlikKatilimcilar';
+        let katilimcilar = JSON.parse(localStorage.getItem(KATILIMCI_KEY)) || [];
+        
+        function saveToLocalStorage() {
+            localStorage.setItem(KATILIMCI_KEY, JSON.stringify(katilimcilar));
+        }
+
+        // Masa Kartı Oluşturur (Sürükle-Bırak için)
+        function createDragDropCard(katilimci) {
+            const katilimciDiv = document.createElement('div');
+            katilimciDiv.classList.add('katilimci');
+            katilimciDiv.setAttribute('draggable', 'true');
+            katilimciDiv.setAttribute('id', katilimci.id); 
+            katilimciDiv.setAttribute('ondragstart', 'drag(event)');
+            katilimciDiv.innerText = katilimci.adSoyad;
+            
+            return katilimciDiv;
+        }
+
+        // Sayfa Yüklendiğinde Verileri Geri Yükle
+        function loadData() {
+            // Tüm masaları temizle (sadece h3 başlığını bırak)
+            document.getElementById('masa1').innerHTML = '<h3>Masa 1</h3>';
+            document.getElementById('masa2').innerHTML = '<h3>Masa 2</h3>';
+            document.getElementById('masa3').innerHTML = '<h3>Masa 3</h3>';
+            
+            katilimcilar.forEach(katilimci => {
+                const katilimciCard = createDragDropCard(katilimci);
+
+                // Katılımcının kayıtlı olduğu masayı bul ve ekle
+                const targetMasa = document.getElementById(katilimci.masaId || 'masa1');
+                if (targetMasa) {
+                    targetMasa.appendChild(katilimciCard);
+                } else {
+                    document.getElementById('masa1').appendChild(katilimciCard);
+                }
+            });
+        }
+        
+        // Sürükle-Bırak Fonksiyonları
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id); 
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text"); 
+            const draggedElement = document.getElementById(data);
+            
+            const targetMasa = ev.target.closest('.masa'); 
+            
+            if (targetMasa) {
+                targetMasa.appendChild(draggedElement);
+                
+                // localStorage'ı güncelle
+                const katilimciIndex = katilimcilar.findIndex(k => k.id === data);
+                if (katilimciIndex > -1) {
+                    // Katılımcının yeni masaId'sini kaydet
+                    katilimcilar[katilimciIndex].masaId = targetMasa.id; 
+                    saveToLocalStorage(); // Kaydı güncelle
+                }
+            }
+        }
+        
+        // Fonksiyonları global kapsamda kullanılabilir hale getir
+        window.allowDrop = allowDrop;
+        window.drag = drag;
+        window.drop = drop;
+        
+        loadData();
+    </script>
+
+</body>
+</html>
