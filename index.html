@@ -77,13 +77,12 @@ document.getElementById('indirBtn').addEventListener('click', function() {
     for (let i = 0; i < tablo.rows.length; i++) {
         let satir = [];
         for (let j = 0; j < tablo.rows[i].cells.length; j++) {
-            let hucre = tablo.rows[i].cells[j].innerText.replace(/"/g, '""'); // Çift tırnakları kaçır
-            satir.push(`"${hucre}"`); // Hücreyi çift tırnak içine al
+            let hucre = tablo.rows[i].cells[j].innerText.replace(/"/g, '""'); 
+            satir.push(`"${hucre}"`);
         }
         csv.push(satir.join(",")); 
     }
 
-    // UTF-8 BOM ekle
     const csvString = "\uFEFF" + csv.join("\n");
     const csvDosya = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(csvDosya);
@@ -91,7 +90,9 @@ document.getElementById('indirBtn').addEventListener('click', function() {
     const a = document.createElement('a');
     a.href = url;
     a.download = 'katilim.csv';
+    document.body.appendChild(a); // 👈 burada geçici olarak DOM’a ekliyoruz
     a.click();
+    document.body.removeChild(a); // 👈 sonra kaldırıyoruz
     URL.revokeObjectURL(url);
 });
 </script>
