@@ -80,9 +80,10 @@ document.getElementById('indirBtn').addEventListener('click', function() {
         csv.push(satir.join(",")); // Hücreleri virgülle ayır
     }
 
-    // CSV dosyasını oluştur
-    const csvDosya = new Blob([csv.join("\n")], { type: 'text/csv' });
-    const url = URL.createObjectURL(csvDosya);
+// CSV dosyasını oluştur
+const bom = "\uFEFF"; // BOM ekliyoruz
+const csvDosya = new Blob([bom + csv.join("\n")], { type: 'text/csv;charset=utf-8;' });
+
 
     // Geçici link ile indir
     const a = document.createElement('a');
