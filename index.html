@@ -61,6 +61,7 @@
             justify-content: center;
             gap: 20px;
             margin-top: 40px;
+            flex-wrap: wrap; /* Küçük ekranlar için kaydırmayı engelleme */
         }
 
         .masa {
@@ -82,19 +83,28 @@
         .masa h3 {
             margin: 10px 0;
             font-size: 1.3em;
+            color: #fff;
         }
 
         .katilimci {
+            width: 90%;
             margin: 5px 0;
             padding: 5px;
             background-color: #fff;
+            color: #333;
             border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+            cursor: move; /* Sürüklenilebilir olduğunu belirtir */
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
-
+        
+        /* Sürükleme sırasında görünüm */
         .katilimci:hover {
-            background-color: #3949AB;
+             background-color: #eee;
+        }
+        .katilimci:active {
+            transform: scale(0.98);
         }
 
         /* Form ve Masa Alanı Stil */
@@ -103,7 +113,7 @@
             border-radius: 10px;
             padding: 20px;
             width: 50%;
-            margin: 0 auto;
+            margin: 20px auto;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
 
@@ -122,6 +132,7 @@
             border-radius: 10px;
             font-size: 1.1em;
             transition: 0.3s ease-in-out;
+            box-sizing: border-box;
         }
 
         button {
@@ -147,6 +158,11 @@
             form {
                 width: 90%;
             }
+            
+            .masalar-container {
+                flex-direction: column;
+                align-items: center;
+            }
         }
     </style>
 </head>
@@ -154,7 +170,6 @@
 
     <h1>Etkinlik Katılım Paneli</h1>
 
-    <!-- Katılım Formu -->
     <form id="katilimForm">
         <h2>Etkinlik Katılım Formu</h2>
         <label>Ad Soyad:</label>
@@ -167,8 +182,8 @@
             <option value="Hayır">Hayır</option>
         </select>
 
-        <label>Yanında kimler geliyor?</label>
-        <input type="text" name="yaninda" placeholder="Eş, Çocuk, Misafir sayısı">
+        <label>Yanında kimler geliyor? (Sayı)</label>
+        <input type="number" name="yaninda" min="0" value="0" placeholder="Eş, Çocuk, Misafir sayısı">
 
         <label>Konaklama istiyor mu?</label>
         <select name="konaklama" required>
@@ -178,27 +193,30 @@
         </select>
 
         <label>Konaklayacak kişi sayısı:</label>
-        <input type="number" name="konaklamaSayisi" min="0">
+        <input type="number" name="konaklamaSayisi" min="0" value="0">
 
         <button type="submit">Gönder</button>
     </form>
+    
+    <button id="clearStorageBtn" style="width: 50%; margin: 10px auto; display: block; background-color: #D32F2F;">Tüm Kayıtlı Veriyi Sil</button>
 
-    <!-- Katılımcı Listesi Tablosu -->
     <h2>Katılımcı Listesi</h2>
     <table id="katilimTablo">
-        <tr>
-            <th>Ad Soyad</th>
-            <th>Plaket</th>
-            <th>Yanında</th>
-            <th>Konaklama</th>
-            <th>Konaklayacak kişi sayısı</th>
-        </tr>
-        <!-- Katılımcı verileri buraya eklenecek -->
+        <thead>
+            <tr>
+                <th>Ad Soyad</th>
+                <th>Plaket</th>
+                <th>Yanında (Kişi)</th>
+                <th>Konaklama</th>
+                <th>Konaklayacak kişi sayısı</th>
+            </tr>
+        </thead>
+        <tbody>
+            </tbody>
     </table>
 
-    <button id="indirBtn">Katılımcıları CSV Olarak İndir</button>
+    <button id="indirBtn" style="width: 50%; margin: 20px auto; display: block;">Katılımcıları CSV Olarak İndir</button>
 
-    <!-- Masalar -->
     <h2>Masalar</h2>
     <div class="masalar-container">
         <div class="masa" id="masa1" ondrop="drop(event)" ondragover="allowDrop(event)">
@@ -213,49 +231,129 @@
     </div>
 
     <script>
-        // Formu işleme
-        document.getElementById('katilimForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // Sayfanın yenilenmesini engelle
+        // localStorage Anahtarları
+        const KATILIMCI_KEY = 'etkinlikKatilimcilar';
 
-            const adSoyad = this.querySelector('input[name="adSoyad"]').value;
-            const plaket = this.querySelector('select[name="plaket"]').value;
-            const yaninda = this.querySelector('input[name="yaninda"]').value;
-            const konaklama = this.querySelector('select[name="konaklama"]').value;
-            const konaklamaSayisi = this.querySelector('input[name="konaklamaSayisi"]').value;
+        // Boş array veya localStorage'dan verileri al
+        let katilimcilar = JSON.parse(localStorage.getItem(KATILIMCI_KEY)) || [];
 
-            // Yeni satır ekleme
-            const tablo = document.getElementById('katilimTablo');
-            const yeniSatir = tablo.insertRow();
-            yeniSatir.insertCell(0).innerText = adSoyad;
-            yeniSatir.insertCell(1).innerText = plaket;
-            yeniSatir.insertCell(2).innerText = yaninda;
-            yeniSatir.insertCell(3).innerText = konaklama;
-            yeniSatir.insertCell(4).innerText = konaklamaSayisi;
+        // --- Yardımcı Fonksiyonlar ---
 
-            // Katılımcıyı masa içine ekleme
-            const masa1 = document.getElementById('masa1');
-            const masa2 = document.getElementById('masa2');
-            const masa3 = document.getElementById('masa3');
+        // 1. Veriyi localStorage'a kaydeder
+        function saveToLocalStorage() {
+            localStorage.setItem(KATILIMCI_KEY, JSON.stringify(katilimcilar));
+        }
 
+        // 2. Tablo Satırı Oluşturur
+        function createTableRow(katilimci) {
+            const tabloBody = document.querySelector('#katilimTablo tbody');
+            const yeniSatir = tabloBody.insertRow();
+            
+            // Veri özniteliği ekleyerek katılımcının benzersiz ID'sini sakla
+            yeniSatir.setAttribute('data-id', katilimci.id); 
+
+            yeniSatir.insertCell(0).innerText = katilimci.adSoyad;
+            yeniSatir.insertCell(1).innerText = katilimci.plaket;
+            yeniSatir.insertCell(2).innerText = katilimci.yaninda;
+            yeniSatir.insertCell(3).innerText = katilimci.konaklama;
+            yeniSatir.insertCell(4).innerText = katilimci.konaklamaSayisi;
+        }
+
+        // 3. Masa Kartı Oluşturur (Sürükle-Bırak için)
+        function createDragDropCard(katilimci) {
             const katilimciDiv = document.createElement('div');
             katilimciDiv.classList.add('katilimci');
             katilimciDiv.setAttribute('draggable', 'true');
-            katilimciDiv.setAttribute('id', 'katilimci' + Date.now());
-            katilimciDiv.innerText = adSoyad;
+            // Katılımcının benzersiz ID'sini kullan
+            katilimciDiv.setAttribute('id', katilimci.id); 
+            katilimciDiv.setAttribute('ondragstart', 'drag(event)');
+            katilimciDiv.innerText = katilimci.adSoyad;
+            
+            return katilimciDiv;
+        }
 
-            // İlk başta masa 1'e ekliyoruz
-            masa1.appendChild(katilimciDiv);
+        // 4. Sayfa Yüklendiğinde Verileri Geri Yükle
+        function loadData() {
+            // Tabloyu temizle
+            document.querySelector('#katilimTablo tbody').innerHTML = '';
+            
+            // Tüm masaları temizle (sadece h3 başlığını bırak)
+            document.getElementById('masa1').innerHTML = '<h3>Masa 1</h3>';
+            document.getElementById('masa2').innerHTML = '<h3>Masa 2</h3>';
+            document.getElementById('masa3').innerHTML = '<h3>Masa 3</h3>';
+            
+            // Katılımcıları tabloya ve masalara yerleştir
+            katilimcilar.forEach(katilimci => {
+                createTableRow(katilimci); // Tabloya ekle
+
+                // Masa kartını oluştur
+                const katilimciCard = createDragDropCard(katilimci);
+
+                // Katılımcının kayıtlı olduğu masayı bul ve ekle
+                const targetMasa = document.getElementById(katilimci.masaId || 'masa1');
+                if (targetMasa) {
+                    targetMasa.appendChild(katilimciCard);
+                } else {
+                    // Eğer masaId yanlışsa varsayılan olarak masa1'e ekle
+                    document.getElementById('masa1').appendChild(katilimciCard);
+                }
+            });
+        }
+        
+        // Sayfa yüklendiğinde verileri geri yükle
+        loadData();
+
+
+        // --- Olay Dinleyicileri ---
+
+        // 1. Formu İşleme (Yeni Katılımcı Ekleme)
+        document.getElementById('katilimForm').addEventListener('submit', function(e) {
+            e.preventDefault(); 
+
+            const adSoyad = this.querySelector('input[name="adSoyad"]').value;
+            const plaket = this.querySelector('select[name="plaket"]').value;
+            // Yanında ve Konaklama Sayısı alanlarının boş gelmesini engellemek için parseInt kullanıldı
+            const yaninda = parseInt(this.querySelector('input[name="yaninda"]').value) || 0; 
+            const konaklama = this.querySelector('select[name="konaklama"]').value;
+            const konaklamaSayisi = parseInt(this.querySelector('input[name="konaklamaSayisi"]').value) || 0;
+            
+            const newId = 'katilimci' + Date.now(); // Benzersiz ID oluştur
+
+            const yeniKatilimci = {
+                id: newId,
+                adSoyad: adSoyad,
+                plaket: plaket,
+                yaninda: yaninda,
+                konaklama: konaklama,
+                konaklamaSayisi: konaklamaSayisi,
+                masaId: 'masa1' // Başlangıçta Masa 1'e ata
+            };
+
+            // Veri listesine ekle
+            katilimcilar.push(yeniKatilimci);
+            
+            // Tabloya ve Masa 1'e kart olarak ekle
+            createTableRow(yeniKatilimci);
+            document.getElementById('masa1').appendChild(createDragDropCard(yeniKatilimci));
+
+            // localStorage'a kaydet
+            saveToLocalStorage();
 
             // Formu sıfırlama
             this.reset();
         });
 
-        // CSV İndirme İşlemi
+        // 2. CSV İndirme İşlemi
         document.getElementById('indirBtn').addEventListener('click', function() {
             const tablo = document.getElementById('katilimTablo');
             let csv = [];
 
-            for (let i = 0; i < tablo.rows.length; i++) {
+            // Başlık satırı eklenir (Katilimci listesindeki th'ler)
+            const headers = Array.from(tablo.querySelectorAll('th')).map(th => `"${th.innerText}"`);
+            csv.push(headers.join(","));
+
+            // Veri satırları eklenir (Katilimci listesindeki td'ler)
+            for (let i = 1; i < tablo.rows.length; i++) {
                 let satir = [];
                 for (let j = 0; j < tablo.rows[i].cells.length; j++) {
                     let hucre = tablo.rows[i].cells[j].innerText.replace(/"/g, '""');
@@ -264,33 +362,68 @@
                 csv.push(satir.join(","));
             }
 
-            const csvString = "\uFEFF" + csv.join("\n");
+            const csvString = "\uFEFF" + csv.join("\n"); // \uFEFF BOM karakteri Türkçe karakterler için önemli
             const csvDosya = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(csvDosya);
 
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'katilim.csv';
+            a.download = 'etkinlik_katilimci_listesi.csv';
             a.click();
             URL.revokeObjectURL(url);
         });
+        
+        // 3. Veri Silme İşlemi
+        document.getElementById('clearStorageBtn').addEventListener('click', function() {
+            if (confirm("UYARI: Tüm kayıtlı katılımcı verileri silinecektir. Emin misiniz?")) {
+                localStorage.removeItem(KATILIMCI_KEY);
+                katilimcilar = []; // Bellekteki listeyi de sıfırla
+                loadData(); // Arayüzü sıfırla
+                alert("Tüm veriler başarıyla silindi.");
+            }
+        });
 
-        // Sürükle-Bırak Fonksiyonları
+        // --- Sürükle-Bırak Fonksiyonları ---
+        
+        // Bırakmayı İzin Ver
         function allowDrop(ev) {
             ev.preventDefault();
         }
 
+        // Sürüklemeyi Başlat
         function drag(ev) {
-            ev.dataTransfer.setData("text", ev.target.id);
+            // Sürüklenen öğenin ID'sini (katilimcinin ID'si) veri transfer nesnesine ayarla
+            ev.dataTransfer.setData("text", ev.target.id); 
         }
 
+        // Bırakma İşlemi
         function drop(ev) {
             ev.preventDefault();
-            const data = ev.dataTransfer.getData("text");
+            const data = ev.dataTransfer.getData("text"); // Sürüklenen öğenin ID'sini al
             const draggedElement = document.getElementById(data);
-            const targetMasa = ev.target.closest('.masa');
-            targetMasa.appendChild(draggedElement);
+            
+            // Bırakılan yerin en yakın ebeveyninin .masa class'ına sahip olmasını sağlar
+            // Bu, katılımcıyı tam olarak Masa div'ine bırakmayı kolaylaştırır.
+            const targetMasa = ev.target.closest('.masa'); 
+            
+            if (targetMasa) {
+                targetMasa.appendChild(draggedElement);
+                
+                // localStorage'ı güncelle
+                const katilimciIndex = katilimcilar.findIndex(k => k.id === data);
+                if (katilimciIndex > -1) {
+                    // Katılımcının yeni masaId'sini kaydet
+                    katilimcilar[katilimciIndex].masaId = targetMasa.id; 
+                    saveToLocalStorage(); // Kaydı güncelle
+                }
+            }
         }
+        
+        // Sürükle-Bırak fonksiyonlarını global kapsamda kullanılabilir hale getir
+        window.allowDrop = allowDrop;
+        window.drag = drag;
+        window.drop = drop;
+        
     </script>
 
 </body>
