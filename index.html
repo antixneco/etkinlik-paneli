@@ -1,25 +1,25 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<title>Etkinlik Paneli ve Masalar</title>
-<style>
-  body { font-family: Arial; }
-  h2 { margin-top: 30px; }
+    <meta charset="UTF-8">
+    <title>Etkinlik Paneli ve Masalar</title>
+    <style>
+        body { font-family: Arial; }
+        h2 { margin-top: 30px; }
 
-  /* Tablo stili */
-  table { border-collapse: collapse; width: 100%; margin-top: 10px; }
-  table, th, td { border: 1px solid black; }
-  th, td { padding: 5px; text-align: left; }
+        /* Tablo stili */
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+        table, th, td { border: 1px solid black; }
+        th, td { padding: 5px; text-align: left; }
 
-  /* Masa düzeni stili */
-  .masa-alani { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px; }
-  .masa { border: 2px solid #333; border-radius: 10px; padding: 10px; width: 200px; min-height: 250px; background: #f9f9f9; }
-  .masa h3 { text-align: center; }
-  .katilimci-list { list-style: none; padding: 0; margin: 0; }
-  .katilimci-list li { padding: 5px; margin: 2px 0; border: 1px solid #999; border-radius: 5px; cursor: grab; background: #fff; }
-  .plaket { background-color: gold; font-weight: bold; }
-</style>
+        /* Masa düzeni stili */
+        .masa-alani { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px; }
+        .masa { border: 2px solid #333; border-radius: 10px; padding: 10px; width: 200px; min-height: 250px; background: #f9f9f9; }
+        .masa h3 { text-align: center; }
+        .katilimci-list { list-style: none; padding: 0; margin: 0; }
+        .katilimci-list li { padding: 5px; margin: 2px 0; border: 1px solid #999; border-radius: 5px; cursor: grab; background: #fff; }
+        .plaket { background-color: gold; font-weight: bold; }
+    </style>
 </head>
 <body>
 
@@ -88,16 +88,20 @@ document.addEventListener("DOMContentLoaded", function(){
         const masaDiv = document.createElement('div');
         masaDiv.classList.add('masa');
         masaDiv.id = `masa${i}`;
-        masaDiv.innerHTML = `<h3>Masa ${i}</h3><ul class="katilimci-list"></ul>`;
+        masaDiv.innerHTML = `<h3>Masa ${i}</h3><ul class="katilimci-list" id="masa${i}list"></ul>`;
         masaAlani.appendChild(masaDiv);
         masalar.push(masaDiv.querySelector('.katilimci-list'));
-    }
 
-    // Sortable.js'i masalar arasında sürükleyip bırakma için başlatalım
-    new Sortable(masaAlani, {
-        group: "masalar",
-        animation: 150
-    });
+        // Her masa için ayrı Sortable.js başlat
+        new Sortable(masaDiv.querySelector('.katilimci-list'), {
+            group: "masalar", // Masalar arasında taşınabilir
+            animation: 150,   // Taşıma animasyonu
+            onEnd: function(evt) {
+                // Taşıma sonrasında yapılacak işlemler
+                console.log(`Masa ${i} taşındı.`);
+            }
+        });
+    }
 
     // ===== LocalStorage'dan yükleme =====
     let kayitliKatilimcilar = JSON.parse(localStorage.getItem('katilimcilar') || '[]');
@@ -180,9 +184,7 @@ document.addEventListener("DOMContentLoaded", function(){
         a.click();
         URL.revokeObjectURL(url);
     });
-
 });
 </script>
-
 </body>
 </html>
