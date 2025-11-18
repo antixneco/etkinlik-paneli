@@ -55,6 +55,48 @@
             border-bottom: 1px solid #ddd;
         }
 
+        /* Masa ve Sürükle-Bırak Alanı */
+        .masalar-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .masa {
+            width: 200px;
+            height: 300px;
+            background-color: #5C6BC0;
+            color: white;
+            text-align: center;
+            padding-top: 10px;
+            border-radius: 10px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .masa h3 {
+            margin: 10px 0;
+            font-size: 1.3em;
+        }
+
+        .katilimci {
+            margin: 5px 0;
+            padding: 5px;
+            background-color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .katilimci:hover {
+            background-color: #3949AB;
+        }
+
         /* Form ve Masa Alanı Stil */
         form {
             background-color: #fff;
@@ -156,6 +198,20 @@
 
     <button id="indirBtn">Katılımcıları CSV Olarak İndir</button>
 
+    <!-- Masalar -->
+    <h2>Masalar</h2>
+    <div class="masalar-container">
+        <div class="masa" id="masa1" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h3>Masa 1</h3>
+        </div>
+        <div class="masa" id="masa2" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h3>Masa 2</h3>
+        </div>
+        <div class="masa" id="masa3" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h3>Masa 3</h3>
+        </div>
+    </div>
+
     <script>
         // Formu işleme
         document.getElementById('katilimForm').addEventListener('submit', function(e) {
@@ -176,8 +232,18 @@
             yeniSatir.insertCell(3).innerText = konaklama;
             yeniSatir.insertCell(4).innerText = konaklamaSayisi;
 
-            // Formu sıfırlama
-            this.reset();
+            // Katılımcıyı masa içine ekleme
+            const masa1 = document.getElementById('masa1');
+            const masa2 = document.getElementById('masa2');
+            const masa3 = document.getElementById('masa3');
+
+            const katilimciDiv = document.createElement('div');
+            katilimciDiv.classList.add('katilimci');
+            katilimciDiv.setAttribute('draggable', 'true');
+            katilimciDiv.innerText = adSoyad;
+
+            // Kişiyi ilgili masaya ekleyelim
+            masa1.appendChild(katilimciDiv);
         });
 
         // CSV İndirme
@@ -188,13 +254,12 @@
             for (let i = 0; i < tablo.rows.length; i++) {
                 let satir = [];
                 for (let j = 0; j < tablo.rows[i].cells.length; j++) {
-                    let hucre = tablo.rows[i].cells[j].innerText.replace(/"/g, '""'); // Çift tırnakları kaçır
-                    satir.push(`"${hucre}"`); // Hücreyi çift tırnak içine al
+                    let hucre = tablo.rows[i].cells[j].innerText.replace(/"/g, '""');
+                    satir.push(`"${hucre}"`);
                 }
                 csv.push(satir.join(","));
             }
 
-            // UTF-8 BOM ekle
             const csvString = "\uFEFF" + csv.join("\n");
             const csvDosya = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(csvDosya);
@@ -205,7 +270,23 @@
             a.click();
             URL.revokeObjectURL(url);
         });
-    </script>
 
+        // Sürükle-Bırak İşlemleri
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(data);
+            const targetMasa = ev.target.closest('.masa');
+            targetMasa.appendChild(draggedElement);
+        }
+    </script>
 </body>
 </html>
