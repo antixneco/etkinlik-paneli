@@ -14,10 +14,10 @@
 
   /* Masa düzeni stili */
   .masa-alani { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px; }
-  .masa { border: 2px solid #333; border-radius: 10px; padding: 10px; width: 200px; min-height: 250px; }
+  .masa { border: 2px solid #333; border-radius: 10px; padding: 10px; width: 200px; min-height: 250px; background: #f9f9f9; }
   .masa h3 { text-align: center; }
   .katilimci-list { list-style: none; padding: 0; margin: 0; }
-  .katilimci-list li { padding: 5px; margin: 2px 0; border: 1px solid #999; border-radius: 5px; cursor: grab; }
+  .katilimci-list li { padding: 5px; margin: 2px 0; border: 1px solid #999; border-radius: 5px; cursor: grab; background: #fff; }
   .plaket { background-color: gold; font-weight: bold; }
 </style>
 </head>
@@ -75,86 +75,88 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 
 <script>
-// ===== Masaları oluştur =====
-const masaAlani = document.getElementById('masaAlani');
-const masaSayisi = 5; // Başlangıçta 5 masa
-const kisiPerMasa = 10; // 10 kişi / masa
-const masalar = [];
+document.addEventListener("DOMContentLoaded", function(){
+    // ===== Masaları oluştur =====
+    const masaAlani = document.getElementById('masaAlani');
+    const masaSayisi = 5; // Başlangıçta 5 masa
+    const kisiPerMasa = 10; // 10 kişi / masa
+    const masalar = [];
 
-for (let i = 1; i <= masaSayisi; i++) {
-    const masaDiv = document.createElement('div');
-    masaDiv.classList.add('masa');
-    masaDiv.id = `masa${i}`;
-    masaDiv.innerHTML = `<h3>Masa ${i}</h3><ul class="katilimci-list"></ul>`;
-    masaAlani.appendChild(masaDiv);
-    masalar.push(masaDiv.querySelector('.katilimci-list'));
+    for (let i = 1; i <= masaSayisi; i++) {
+        const masaDiv = document.createElement('div');
+        masaDiv.classList.add('masa');
+        masaDiv.id = `masa${i}`;
+        masaDiv.innerHTML = `<h3>Masa ${i}</h3><ul class="katilimci-list"></ul>`;
+        masaAlani.appendChild(masaDiv);
+        masalar.push(masaDiv.querySelector('.katilimci-list'));
 
-    new Sortable(masalar[i-1], { group: "masalar", animation: 150 });
-}
+        new Sortable(masalar[i-1], { group: "masalar", animation: 150 });
+    }
 
-// ===== Formdan tablo ve masaya veri ekleme =====
-document.getElementById('katilimForm').addEventListener('submit', function(e){
-    e.preventDefault();
+    // ===== Formdan tablo ve masaya veri ekleme =====
+    document.getElementById('katilimForm').addEventListener('submit', function(e){
+        e.preventDefault();
 
-    const adSoyad = this.querySelector('input[name="adSoyad"]').value;
-    const plaket = this.querySelector('select[name="plaket"]').value;
-    const yaninda = this.querySelector('input[name="yaninda"]').value;
-    const konaklama = this.querySelector('select[name="konaklama"]').value;
-    const konaklamaSayisi = this.querySelector('input[name="konaklamaSayisi"]').value;
+        const adSoyad = this.querySelector('input[name="adSoyad"]').value;
+        const plaket = this.querySelector('select[name="plaket"]').value;
+        const yaninda = this.querySelector('input[name="yaninda"]').value;
+        const konaklama = this.querySelector('select[name="konaklama"]').value;
+        const konaklamaSayisi = this.querySelector('input[name="konaklamaSayisi"]').value;
 
-    // --- Tabloya ekle ---
-    const tablo = document.getElementById('katilimTablo');
-    const yeniSatir = tablo.insertRow();
-    yeniSatir.insertCell(0).innerText = adSoyad;
-    yeniSatir.insertCell(1).innerText = plaket;
-    yeniSatir.insertCell(2).innerText = yaninda;
-    yeniSatir.insertCell(3).innerText = konaklama;
-    yeniSatir.insertCell(4).innerText = konaklamaSayisi;
+        // --- Tabloya ekle ---
+        const tablo = document.getElementById('katilimTablo');
+        const yeniSatir = tablo.insertRow();
+        yeniSatir.insertCell(0).innerText = adSoyad;
+        yeniSatir.insertCell(1).innerText = plaket;
+        yeniSatir.insertCell(2).innerText = yaninda;
+        yeniSatir.insertCell(3).innerText = konaklama;
+        yeniSatir.insertCell(4).innerText = konaklamaSayisi;
 
-    // --- Masalara ekle ---
-    const li = document.createElement('li');
-    li.innerText = adSoyad;
-    if(plaket === "Evet") li.classList.add('plaket');
+        // --- Masalara ekle ---
+        const li = document.createElement('li');
+        li.innerText = adSoyad;
+        if(plaket === "Evet") li.classList.add('plaket');
 
-    let eklendi = false;
-    for (let masa of masalar){
-        if(masa.children.length < kisiPerMasa){
-            masa.appendChild(li);
-            eklendi = true;
-            break;
+        let eklendi = false;
+        for (let masa of masalar){
+            if(masa.children.length < kisiPerMasa){
+                masa.appendChild(li);
+                eklendi = true;
+                break;
+            }
         }
-    }
 
-    if(!eklendi){
-        alert("Tüm masalar dolu! Yeni masa eklemeniz gerekiyor.");
-    }
-
-    this.reset();
-});
-
-// ===== CSV indirme =====
-document.getElementById('indirBtn').addEventListener('click', function(){
-    const tablo = document.getElementById('katilimTablo');
-    let csv = [];
-
-    for(let i=0; i<tablo.rows.length; i++){
-        let satir = [];
-        for(let j=0; j<tablo.rows[i].cells.length; j++){
-            let hucre = tablo.rows[i].cells[j].innerText.replace(/"/g,'""');
-            satir.push(`"${hucre}"`);
+        if(!eklendi){
+            alert("Tüm masalar dolu! Yeni masa eklemeniz gerekiyor.");
         }
-        csv.push(satir.join(","));
-    }
 
-    const csvString = "\uFEFF" + csv.join("\n");
-    const csvDosya = new Blob([csvString], { type:'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(csvDosya);
+        this.reset();
+    });
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'katilim.csv';
-    a.click();
-    URL.revokeObjectURL(url);
+    // ===== CSV indirme =====
+    document.getElementById('indirBtn').addEventListener('click', function(){
+        const tablo = document.getElementById('katilimTablo');
+        let csv = [];
+
+        for(let i=0; i<tablo.rows.length; i++){
+            let satir = [];
+            for(let j=0; j<tablo.rows[i].cells.length; j++){
+                let hucre = tablo.rows[i].cells[j].innerText.replace(/"/g,'""');
+                satir.push(`"${hucre}"`);
+            }
+            csv.push(satir.join(","));
+        }
+
+        const csvString = "\uFEFF" + csv.join("\n");
+        const csvDosya = new Blob([csvString], { type:'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(csvDosya);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'katilim.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+    });
 });
 </script>
 
